@@ -50,7 +50,7 @@ export async function scrapeAndStoreProduct(productUrl: string, attempt = 3) {
 catch (error: any) {
     if(attempt < 50){ // 3 attempts max
         console.log(`Scraping failed on Attempt #${attempt + 1}, retrying...`);
-        setTimeout(() => scrapeAndStoreProduct(productUrl, attempt + 1), 500); //3 seconds delay between attempts
+        setTimeout(() => scrapeAndStoreProduct(productUrl, attempt + 1), 1000); //3 seconds delay between attempts
     } else {
         console.log(`Scraping failed after ${attempt + 1} attempts.`)
         throw new Error(`Failed to create/update product: ${error.message}`)
