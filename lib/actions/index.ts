@@ -8,7 +8,7 @@ import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utils";
 import { User } from "@/types";
 import { generateEmailBody, sendEmail } from "../nodemailer";
 
-export async function scrapeAndStoreProduct(productUrl: string) {
+export async function scrapeAndStoreProduct(productUrl: string, attempt = 0) {
     if (!productUrl) return;
 
     try {
@@ -45,8 +45,17 @@ export async function scrapeAndStoreProduct(productUrl: string) {
 
         revalidatePath(`/products/${newProduct._id}`);
 
-    } catch (error: any) {
-        throw new Error(`Failed to create/update product: ${error.message}`)
+    } 
+    // catch (error: any) {
+    //     throw new Error(`Failed to create/update product: ${error.message}`)
+    catch (error: any) {
+        if(attempt < 3){ // 3 attempts max
+            console.log(`Scraping failed on Attempt #${attempt + 1}, retrying...`);
+            setTimeout(() => scrapeAndStoreProduct(productUrl, attempt + 1), 3000); //3 seconds delay between attempts
+        } else {
+            console.log(`Scraping failed after ${attempt + 1} attempts.`)
+            throw new Error(`Failed to create/update product: ${error.message}`)
+        }
     }
 }
 
